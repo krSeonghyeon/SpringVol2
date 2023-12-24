@@ -43,4 +43,4 @@ application.properties
 .DS_Store
 
 # Ignore DBConnectionConstant class
-com/example/board/DBConnection/DBConnectionConstant.class
+java/com/example/board/DBConnection/DBConnectionConstant.java
