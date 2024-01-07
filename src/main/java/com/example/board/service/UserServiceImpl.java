@@ -5,6 +5,7 @@ import com.example.board.jwt.JwtUtil;
 import com.example.board.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -48,11 +49,19 @@ public class UserServiceImpl implements UserService{
         userRepository.deleteById(userId);
     }
 
+    private PasswordEncoder passwordEncoder;
     @Value("${jwt.secret}")
     private String secretKey;
     private Long expiredMs = 1000 * 60 * 60l;
     @Override
-    public String login(String username) {
-        return JwtUtil.createJwt(username, secretKey, expiredMs);
+    public String signIn(User request) {
+
+        User user = userRepository.findById(request.getUserid())
+                .orElseThrow(() -> new IllegalArgumentException("Can't find ID"));
+        if(!passwordEncoder.matches(request.getUserpw(), user.getUserpw())){
+            throw new IllegalArgumentException("Wrong password");
+        }
+
+        return JwtUtil.createJwt(user.getUsername(), secretKey, expiredMs);
     }
 }

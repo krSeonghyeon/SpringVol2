@@ -12,5 +12,5 @@ public interface UserService {
     public User getUserByUserId(String userId) throws SQLException;
     public void updateUserPw(String userId, User user) throws SQLException;
     public void deleteUser(String userId) throws SQLException;
-    public String login(String username);
+    public String signIn(User request) throws Exception;
 }

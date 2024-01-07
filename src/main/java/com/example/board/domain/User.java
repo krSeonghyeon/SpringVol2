@@ -4,6 +4,7 @@ package com.example.board.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,4 +24,8 @@ public class User {
     private String username;
     @Column(name = "userpw")
     private String userpw;
+
+    public void encodePassword(PasswordEncoder passwordEncoder){
+        this.userpw = passwordEncoder.encode(userpw);
+    }
 }

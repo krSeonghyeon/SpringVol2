@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<String> login(User user) {
-        return ResponseEntity.ok().body(userService.login(user.getUsername()));
+    public ResponseEntity<String> login(User request) throws Exception {
+        return ResponseEntity.ok().body(userService.signIn(request));
     }
 }
