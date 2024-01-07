@@ -4,10 +4,12 @@ import com.example.board.domain.User;
 import com.example.board.service.UserService;
 import com.example.board.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -40,5 +42,10 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable String userId) throws SQLException {
         userService.deleteUser(userId);
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<String> login(User user) {
+        return ResponseEntity.ok().body(userService.login(user.getUsername()));
     }
 }
