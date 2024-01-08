@@ -1,6 +1,7 @@
 package com.example.board.controller;
 
 import com.example.board.domain.User;
+import com.example.board.jwt.JwtToken;
 import com.example.board.service.UserService;
 import com.example.board.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,9 @@ public class UserController {
         userService.deleteUser(userId);
     }
 
-    @PostMapping("login")
-    public ResponseEntity<String> login(User request) throws Exception {
-        return ResponseEntity.ok().body(userService.signIn(request));
+    @PostMapping("/login")
+    public ResponseEntity<JwtToken> login(Map<String, String> loginForm) throws Exception {
+        JwtToken token = userService.login(loginForm.get("username"), loginForm.get("password"));
+        return ResponseEntity.ok(token);
     }
 }

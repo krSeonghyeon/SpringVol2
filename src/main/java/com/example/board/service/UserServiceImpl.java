@@ -1,23 +1,33 @@
 package com.example.board.service;
 
 import com.example.board.domain.User;
-import com.example.board.jwt.JwtUtil;
+import com.example.board.jwt.JwtToken;
+import com.example.board.jwt.JwtTokenProvider;
 import com.example.board.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserService{
+@Transactional
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-
+    private final BCryptPasswordEncoder encoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final JwtTokenProvider jwtTokenProvider;
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(BCryptPasswordEncoder encoder, UserRepository repository, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider) {
+        this.encoder = encoder;
+        this.userRepository = repository;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -49,19 +59,14 @@ public class UserServiceImpl implements UserService{
         userRepository.deleteById(userId);
     }
 
-    private PasswordEncoder passwordEncoder;
-    @Value("${jwt.secret}")
-    private String secretKey;
-    private Long expiredMs = 1000 * 60 * 60l;
     @Override
-    public String signIn(User request) {
+    public JwtToken login(String id, String password) {
 
-        User user = userRepository.findById(request.getUserid())
-                .orElseThrow(() -> new IllegalArgumentException("Can't find ID"));
-        if(!passwordEncoder.matches(request.getUserpw(), user.getUserpw())){
-            throw new IllegalArgumentException("Wrong password");
-        }
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        return JwtUtil.createJwt(user.getUsername(), secretKey, expiredMs);
+        JwtToken token = jwtTokenProvider.generateToken(authentication);
+
+        return token;
     }
 }
