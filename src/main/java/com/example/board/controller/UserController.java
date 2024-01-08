@@ -46,8 +46,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtToken> login(Map<String, String> loginForm) throws Exception {
-        JwtToken token = userService.login(loginForm.get("username"), loginForm.get("password"));
+    public ResponseEntity<JwtToken> login(@RequestBody User user) throws Exception {
+        JwtToken token = userService.login(user.getUserid(), user.getUserpw());
         return ResponseEntity.ok(token);
     }
 }
